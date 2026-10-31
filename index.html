@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PC F-04 · Control de obra mezcla colocada</title>
+<style>
+:root{--bg:#f3f2ee;--sf:#fff;--tx:#1d2125;--mu:#5d656d;--ln:#c9ccd0;--ac:#1f4e8c;--hd:#e4e7ea;--ok:#e8f1e4;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#16191c;--sf:#1f2327;--tx:#e8eaec;--mu:#98a1a9;--ln:#3a4047;--ac:#7fb0ee;--hd:#2a2f34;--ok:#243326;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#16191c;--sf:#1f2327;--tx:#e8eaec;--mu:#98a1a9;--ln:#3a4047;--ac:#7fb0ee;--hd:#2a2f34;--ok:#243326;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.4 "Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+main{max-width:980px;margin:0 auto;padding:16px}
+h1{font-size:18px;margin:0}h2{font-size:14px;margin:0 0 8px;background:var(--hd);padding:6px 10px;text-align:center}
+.top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.top small{color:var(--mu)}
+section{background:var(--sf);border:1px solid var(--ln);padding:12px;margin-bottom:12px}
+.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px}
+label{display:block;font-size:12px;color:var(--mu)}
+input,select,textarea{width:100%;font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--ln);padding:6px;border-radius:3px}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid var(--ac);outline-offset:1px}
+.w{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:760px}
+th{font-size:12px;background:var(--hd);padding:6px;border:1px solid var(--ln);text-align:center}
+td{border:1px solid var(--ln);padding:2px}
+td input,td select{border:0;background:transparent;padding:6px 4px}
+td.r{text-align:right;padding:6px 8px;background:var(--ok);font-variant-numeric:tabular-nums;min-width:90px}
+td.n{text-align:center;color:var(--mu);width:28px}
+tfoot td{font-weight:600;background:var(--hd);padding:6px 8px}
+.res{background:var(--ok);padding:8px;border:1px solid var(--ln);font-weight:600;font-variant-numeric:tabular-nums;min-height:34px}
+.leg{font-size:12px;color:var(--mu);margin:6px 0 0}
+button{font:inherit;padding:7px 12px;border:1px solid var(--ac);background:var(--ac);color:var(--bg);border-radius:3px;cursor:pointer}
+button.s{background:transparent;color:var(--ac)}
+.sig{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:28px}
+.sig div{border-top:1px solid var(--tx);padding-top:4px;font-size:12px;color:var(--mu)}
+@media print{body{background:#fff;color:#000}.np{display:none}section{border-color:#999}:root{--bg:#fff;--sf:#fff;--tx:#000;--ln:#999}}
+</style></head><body><main>
+<div class="top"><div><h1>Control de obra · mezcla colocada en parcheos</h1><small>PROCOPAL S.A. · Código PC F-04 · Revisión 05</small></div>
+<div class="np"><button class="s" onclick="addRows()">Agregar fila</button> <button class="s" onclick="clearAll()">Limpiar</button> <button onclick="window.print()">Imprimir</button></div></div>
+
+<section><div class="g">
+<div><label>Obra</label><input id="obra"></div><div><label>Dirección o tramo</label><input id="tramo"></div>
+<div><label>Cliente</label><input id="cli"></div><div><label>Encargado / inspector</label><input id="insp"></div>
+<div><label>Fecha</label><input id="fecha" type="date"></div></div></section>
+
+<section><h2>Control de obra mezcla colocada en parcheos</h2>
+<div class="w"><table><thead><tr><th rowspan="2">#</th><th rowspan="2">ACT</th><th colspan="2">Abscisas</th><th rowspan="2">Margen</th><th rowspan="2">Longitud (m)</th><th rowspan="2">Espesor (m)</th><th rowspan="2">Ancho (m)</th><th rowspan="2">Volumen colocado (m³)</th></tr><tr><th>Inicial</th><th>Final</th></tr></thead>
+<tbody id="rows"></tbody>
+<tfoot><tr><td colspan="8">Total volumen colocado (sin fresado)</td><td id="tot" class="r">0.000</td></tr></tfoot></table></div>
+<p class="leg">ACT: P = parcheo · N = nivelación · RC = riego continuo · FR = fresado. Volumen = longitud × espesor × ancho. Si dejas la longitud vacía y escribes abscisas tipo K1+250, la longitud se calcula sola. El fresado se muestra pero no suma al volumen de mezcla colocada.</p>
+<div id="porAct" class="g" style="margin-top:8px"></div></section>
+
+<section><h2>Imprimación</h2><div class="g">
+<div><label>Tipo de imprimante</label><input id="imp"></div>
+<div><label>Área (m²) — vacío = suma de longitud × ancho</label><input id="area" type="number" step="any" inputmode="decimal"></div>
+<div><label>Galones</label><input id="gal" type="number" step="any" inputmode="decimal"></div>
+<div><label>Rendimiento (m²/gal)</label><div class="res" id="rend">—</div></div></div></section>
+
+<section><h2>Control por peso (volumen real extendido)</h2><div class="g">
+<div><label>(1) Toneladas recibidas / jornada</label><input id="ton" type="number" step="any" inputmode="decimal"></div>
+<div><label>(2) Factor de conversión (ton/m³)</label><input id="fac" type="number" step="any" inputmode="decimal" value="2.2"></div>
+<div><label>(3) Volumen recibido (m³) = (1)/(2)</label><div class="res" id="v3">—</div></div>
+<div><label>(4) Volumen total colocado (m³)</label><div class="res" id="v4">—</div></div>
+<div><label>(5) Margen de desperdicio (%) = ((4)−(3))×100/(4)</label><div class="res" id="v5">—</div></div></div>
+<p class="leg">Un valor negativo en (5) indica que se recibió más mezcla de la colocada; positivo, que se colocó más de lo recibido.</p></section>
+
+<section><label>Observaciones</label><textarea id="obs" rows="5"></textarea>
+<div class="sig"><div>Firma encargado / inspector</div><div>Vo. Bo. ingeniero residente</div></div></section>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const nf=(v,d=3)=>isFinite(v)?v.toLocaleString("es-CO",{minimumFractionDigits:d,maximumFractionDigits:d}):"—";
+function absc(s){const m=String(s).trim().toUpperCase().match(/^K?\s*(\d+)\s*\+\s*(\d+(?:[.,]\d+)?)$/);return m?parseInt(m[1])*1000+parseFloat(m[2].replace(",",".")):null}
+function row(i){const tr=document.createElement("tr");
+tr.innerHTML=`<td class="n">${i+1}</td><td><select><option></option><option>P</option><option>N</option><option>RC</option><option>FR</option></select></td>
+<td><input placeholder="K0+000"></td><td><input placeholder="K0+000"></td>
+<td><select><option></option><option>I</option><option>D</option><option>C</option></select></td>
+<td><input type="number" step="any" inputmode="decimal"></td><td><input type="number" step="any" inputmode="decimal"></td><td><input type="number" step="any" inputmode="decimal"></td><td class="r">—</td>`;
+tr.addEventListener("input",calc);return tr}
+function addRows(n=5){const b=$("rows");for(let i=0;i<n;i++)b.appendChild(row(b.children.length));}
+function clearAll(){if(!confirm("¿Borrar todos los datos del formulario?"))return;$("rows").innerHTML="";addRows(15);document.querySelectorAll("main input:not([type=number][id=fac]),textarea").forEach(e=>{if(e.id!=="fac")e.value=""});calc()}
+function calc(){let tot=0,areaSum=0;const by={P:[0,0],N:[0,0],RC:[0,0],FR:[0,0]};
+[...$("rows").children].forEach(tr=>{const c=tr.querySelectorAll("input,select");
+const act=c[0].value,a=absc(c[1].value),b=absc(c[2].value);
+let L=parseFloat(c[4].value);if(isNaN(L)&&a!==null&&b!==null)L=Math.abs(b-a);
+const E=parseFloat(c[5].value),A=parseFloat(c[6].value);
+const v=L*E*A;const cell=tr.lastElementChild;cell.textContent=isFinite(v)?nf(v):"—";
+c[4].placeholder=isNaN(parseFloat(c[4].value))&&isFinite(L)?nf(L,2):"";
+if(isFinite(v)){if(act!=="FR")tot+=v;if(by[act]){by[act][0]+=v;by[act][1]+=L*A}}
+if(isFinite(L*A)&&act!=="FR")areaSum+=L*A});
+$("tot").textContent=nf(tot);
+$("porAct").innerHTML=Object.entries(by).map(([k,[v,ar]])=>`<div><label>${k} · volumen / área</label><div class="res">${nf(v)} m³ / ${nf(ar,2)} m²</div></div>`).join("");
+const ar=parseFloat($("area").value);const area=isNaN(ar)?areaSum:ar;$("area").placeholder=nf(areaSum,2);
+const g=parseFloat($("gal").value);$("rend").textContent=g>0?nf(area/g,2):"—";
+const t=parseFloat($("ton").value),f=parseFloat($("fac").value);const v3=t/f;
+$("v3").textContent=f>0&&isFinite(v3)?nf(v3):"—";$("v4").textContent=nf(tot);
+$("v5").textContent=tot>0&&isFinite(v3)?nf((tot-v3)*100/tot,2)+" %":"—"}
+document.querySelectorAll("#area,#gal,#ton,#fac").forEach(e=>e.addEventListener("input",calc));
+addRows(15);calc();
+</script></body></html>
